@@ -18,16 +18,17 @@ import { Alert, AlertTitle } from "@/components/ui/alert";
 import { OctagonAlertIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { FaGithub, FaGoogle } from "react-icons/fa";
 
 const formSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1, { message: "Password is required" }),
 });
 
-const SignInView = () => {
+export const SignInView = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -48,11 +49,33 @@ const SignInView = () => {
       {
         email: data.email,
         password: data.password,
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
           setIsPending(false);
           router.push("/");
+        },
+        onError: ({ error }) => {
+          setIsPending(false);
+          setError(error.message);
+        },
+      }
+    );
+  };
+
+  const onSocial = (provider: "github" | "google") => {
+    setError(null);
+    setIsPending(true);
+
+    authClient.signIn.social(
+      {
+        provider,
+        callbackURL: "/",
+      },
+      {
+        onSuccess: () => {
+          setIsPending(false);
         },
         onError: ({ error }) => {
           setIsPending(false);
@@ -125,11 +148,21 @@ const SignInView = () => {
                   <span className="flex-1 border-t border-border"></span>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" type="button" disabled={isPending}>
-                    Google
+                  <Button
+                    variant="outline"
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => onSocial("google")}
+                  >
+                    <FaGoogle />
                   </Button>
-                  <Button variant="outline" type="button" disabled={isPending}>
-                    Github
+                  <Button
+                    variant="outline"
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => onSocial("github")}
+                  >
+                    <FaGithub />
                   </Button>
                 </div>
                 <div className="text-sm text-center">
@@ -171,5 +204,3 @@ const SignInView = () => {
     </div>
   );
 };
-
-export default SignInView;
