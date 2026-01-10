@@ -12,7 +12,7 @@ const MeetingsView = () => {
   return (
     <div>
       <h2>Your Meetings</h2>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      {/* <pre>{JSON.stringify(data)}</pre> */}
     </div>
   );
 };
